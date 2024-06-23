@@ -1,16 +1,34 @@
-// Tela entrada sobra:
-// Permitir que o operador dê entrada nas dimensões da sobra da chapa após o processo de corte. 
-// “Esta entrada deverá ser realizada por meio da leitura do arquivo que o equipamento gera a geometria da sobra da chapa, pois os retalhos, na maioria das vezes não possuem a geometria retangular;”??;
+import React, { useState } from 'react';
+import axios from 'axios';
 
-import React from 'react'
+const SlabLeftoverEntry = () => {
+  const [arquivo, setArquivo] = useState(null);
 
-function SlabLeftoverEntry() {
+  const handleFileChange = (e) => {
+    setArquivo(e.target.files[0]);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append('arquivo', arquivo);
+    axios.post('/api/retalhos/', formData)
+      .then(response => console.log('Sobra adicionada:', response.data))
+      .catch(error => console.error('Erro ao adicionar sobra:', error));
+  };
+
   return (
     <div>
-      <h1>Slab Leftover Entry Page</h1>
-      <p>Entre um novo retalho por aqui.</p>
+      <h1>Entrada de Sobra</h1>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>Arquivo de Geometria</label>
+          <input type="file" onChange={handleFileChange} />
+        </div>
+        <button type="submit">Adicionar Sobra</button>
+      </form>
     </div>
-  )
-}
+  );
+};
 
-export default SlabLeftoverEntry
+export default SlabLeftoverEntry;

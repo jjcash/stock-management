@@ -1,18 +1,36 @@
-// Screen to search for a new slab:
-//  It should look for the smallest possible slab to save materials;
-//  Take into account all information when entering the desired type of stone;
-// When cutting a new artifact from a marble or granite slab, the software should read its geometry and suggest the best option from the slab remnants stored in the specified stock position, i.e., the remnant or slab that provides the highest yield.
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
+const SearchNewSlab = () => {
+  const [geometria, setGeometria] = useState('');
+  const [melhorOpcao, setMelhorOpcao] = useState(null);
 
-import React from 'react'
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    axios.post('/api/procurar-chapa/', { geometria })
+      .then(response => setMelhorOpcao(response.data))
+      .catch(error => console.error('Erro ao procurar chapa:', error));
+  };
 
-function SearchNewSlab() {
   return (
     <div>
-      <h1>Search New Slab Page</h1>
-      <p>Procure a peça ideal para trabalhar.</p>
+      <h1>Procurar Chapa</h1>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>Geometria do Artefato</label>
+          <textarea value={geometria} onChange={(e) => setGeometria(e.target.value)} />
+        </div>
+        <button type="submit">Procurar</button>
+      </form>
+      {melhorOpcao && (
+        <div>
+          <h2>Melhor Opção</h2>
+          <p>Código: {melhorOpcao.codigo}</p>
+          <p>Tipo: {melhorOpcao.tipo_de_pedra.nome}</p>
+        </div>
+      )}
     </div>
-  )
-}
+  );
+};
 
-export default SearchNewSlab
+export default SearchNewSlab;

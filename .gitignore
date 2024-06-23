@@ -1,0 +1,30 @@
+# Arquivos específicos do Django
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
+db.sqlite3
+
+# Ambiente virtual
+.env
+/.venv/
+/env/
+.env.*
+
+# Arquivos de mídia e estáticos
+/media/
+/static/
+
+# Arquivos de compilação e cache
+*.pyo
+*.pyc
+*.coverage
+*.cache
+
+# Logs
+/logs/
+
+# Outros
+pip-log.txt
+pip-compile.log

@@ -1,23 +1,74 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-// Select granite or marble type (RadioButton);Select whether it is a full sheet or a remnant;Spaces to enter length, width, thickness (NumField);Space to enter surface defects (TextField) => Include space to select by Radio Button whether or not there are surface defects, if so, enable the TextField. This will help with inventory filters;Generate a different code for each stone entry (Backend);Generate a QR code for each entry, showing all item information, showing location on the "map";Space to enter physical stock location (TextField?);
+const SlabEntry = () => {
+  const [tipo, setTipo] = useState('');
+  const [tiposDePedra, setTiposDePedra] = useState([]);
+  const [comprimento, setComprimento] = useState('');
+  const [largura, setLargura] = useState('');
+  const [espessura, setEspessura] = useState('');
+  const [defeitos, setDefeitos] = useState('');
+  const [hasDefeitos, setHasDefeitos] = useState(false);
 
-// Additional notes:
-// The RadioButton for selecting granite or marble type should have options for all available types of granite and marble.
-// The NumField for entering length, width, and thickness should be validated to ensure that the values are positive numbers.
-// The TextField for entering surface defects should be disabled by default. If the user selects the "Yes" option for the RadioButton for surface defects, the TextField should be enabled.
-// The backend should generate a unique code for each stone entry. This code should be used to identify the stone in the inventory system.
-// The QR code should include all of the information about the stone, including the code, type of granite or marble, dimensions, surface defects, and physical stock location. The QR code should be displayed on the screen and printed out.
-// The TextField for entering physical stock location is optional. If included, it should be validated to ensure that the value is a valid location in the inventory system.
+  useEffect(() => {
+    axios.get('/api/tipos-de-pedra/')
+      .then(response => setTiposDePedra(response.data))
+      .catch(error => console.error('Erro ao buscar tipos de pedra:', error));
+  }, []);
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const novaChapa = {
+      tipo_de_pedra: tipo,
+      comprimento,
+      largura,
+      espessura,
+      defeitos_superficiais: hasDefeitos ? defeitos : '',
+    };
+    axios.post('/api/chapas/', novaChapa)
+      .then(response => console.log('Chapa adicionada:', response.data))
+      .catch(error => console.error('Erro ao adicionar chapa:', error));
+  };
 
-function SlabEntry() {
   return (
     <div>
-      <h1>Slab Entry Page</h1>
-      <p>Registre uma nova chapa aqui.</p>
+      <h1>Entrada de Chapa</h1>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>Tipo de Pedra</label>
+          <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
+            {tiposDePedra.map(pedra => (
+              <option key={pedra.id} value={pedra.id}>{pedra.nome}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label>Comprimento</label>
+          <input type="number" value={comprimento} onChange={(e) => setComprimento(e.target.value)} />
+        </div>
+        <div>
+          <label>Largura</label>
+          <input type="number" value={largura} onChange={(e) => setLargura(e.target.value)} />
+        </div>
+        <div>
+          <label>Espessura</label>
+          <input type="number" value={espessura} onChange={(e) => setEspessura(e.target.value)} />
+        </div>
+        <div>
+          <label>Defeitos Superficiais</label>
+          <input
+            type="checkbox"
+            checked={hasDefeitos}
+            onChange={(e) => setHasDefeitos(e.target.checked)}
+          />
+          {hasDefeitos && (
+            <textarea value={defeitos} onChange={(e) => setDefeitos(e.target.value)} />
+          )}
+        </div>
+        <button type="submit">Adicionar Chapa</button>
+      </form>
     </div>
-  )
-}
+  );
+};
 
 export default SlabEntry
