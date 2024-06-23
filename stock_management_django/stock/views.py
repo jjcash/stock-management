@@ -1,4 +1,6 @@
 from rest_framework import viewsets
+from rest_framework.filters import OrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend
 from .models import TipoDePedra, LocalizacaoEstoque, Chapa, Sobra, EntradaSaida
 from .serializers import TipoDePedraSerializer, LocalizacaoEstoqueSerializer, ChapaSerializer, SobraSerializer, EntradaSaidaSerializer
 
@@ -13,6 +15,9 @@ class LocalizacaoEstoqueViewSet(viewsets.ModelViewSet):
 class ChapaViewSet(viewsets.ModelViewSet):
     queryset = Chapa.objects.all()
     serializer_class = ChapaSerializer
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filterset_fields = ['tipo_de_pedra', 'localizacao_estoque', 'espessura', 'defeitos_superficiais']
+    ordering_fields = ['codigo']
 
 class SobraViewSet(viewsets.ModelViewSet):
     queryset = Sobra.objects.all()

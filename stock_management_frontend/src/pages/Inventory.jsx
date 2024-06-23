@@ -1,50 +1,88 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import FilterComponent from '../components/FilterComponent';
 
-const Inventory = () => {
-  const [itens, setItens] = useState([]);
-  const [filtro, setFiltro] = useState({ tipo: '', status: '', espessura: '', defeitos: '' });
+const InventoryList = () => {
+  const [chapas, setChapas] = useState([]);
+  const [tiposDePedra, setTiposDePedra] = useState([]);
+  const [localizacoes, setLocalizacoes] = useState([]);
+  const [filtros, setFiltros] = useState({
+    tipo_de_pedra: '',
+    localizacao_estoque: '',
+    espessura: '',
+    defeitos_superficiais: ''
+  });
 
   useEffect(() => {
-    axios.get('/api/chapas/')
-      .then(response => setItens(response.data))
-      .catch(error => console.error('Erro ao buscar estoque:', error));
+    axios.get('http://localhost:8000/api/tipos-de-pedra/')
+      .then(response => setTiposDePedra(response.data))
+      .catch(error => console.error('Erro ao buscar tipos de pedra:', error));
+
+    axios.get('http://localhost:8000/api/localizacoes/')
+      .then(response => setLocalizacoes(response.data))
+      .catch(error => console.error('Erro ao buscar localizações:', error));
+
+    fetchChapas();
   }, []);
 
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFiltro(prev => ({ ...prev, [name]: value }));
+  const fetchChapas = () => {
+    const params = { ...filtros };
+
+    if (filtros.defeitos_superficiais === 'com_defeito') {
+      params.defeitos_superficiais = true;
+    } else if (filtros.defeitos_superficiais === 'sem_defeito') {
+      params.defeitos_superficiais = false;
+    } else {
+      delete params.defeitos_superficiais;
+    }
+
+    axios.get('http://localhost:8000/api/chapas/', { params })
+      .then(response => setChapas(response.data))
+      .catch(error => console.error('Erro ao buscar chapas:', error));
   };
 
-  const filteredItens = itens.filter(item => {
-    return (
-      (!filtro.tipo || item.tipo_de_pedra.id === parseInt(filtro.tipo)) &&
-      (!filtro.status || item.status === filtro.status) &&
-      (!filtro.espessura || item.espessura === parseFloat(filtro.espessura)) &&
-      (!filtro.defeitos || item.defeitos_superficiais.includes(filtro.defeitos))
-    );
-  });
+  const handleFiltrar = () => {
+    fetchChapas();
+  };
 
   return (
     <div>
-      <h1>Estoque</h1>
-      <div>
-        <label>Tipo de Pedra</label>
-        <input name="tipo" value={filtro.tipo} onChange={handleFilterChange} />
-        <label>Status</label>
-        <input name="status" value={filtro.status} onChange={handleFilterChange} />
-        <label>Espessura</label>
-        <input name="espessura" value={filtro.espessura} onChange={handleFilterChange} />
-        <label>Defeitos</label>
-        <input name="defeitos" value={filtro.defeitos} onChange={handleFilterChange} />
-      </div>
-      <ul>
-        {filteredItens.map(item => (
-          <li key={item.id}>{item.codigo} - {item.tipo_de_pedra.nome} - {item.status}</li>
-        ))}
-      </ul>
+      <h1>Inventário de Chapas</h1>
+      <FilterComponent 
+        tiposDePedra={tiposDePedra}
+        localizacoes={localizacoes}
+        filtros={filtros}
+        setFiltros={setFiltros}
+        handleFiltrar={handleFiltrar}
+      />
+      <table>
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Tipo de Pedra</th>
+            <th>Localização</th>
+            <th>Comprimento</th>
+            <th>Largura</th>
+            <th>Espessura</th>
+            <th>Defeitos Superficiais</th>
+          </tr>
+        </thead>
+        <tbody>
+          {chapas.map(chapa => (
+            <tr key={chapa.id}>
+              <td>{chapa.codigo}</td>
+              <td>{tiposDePedra.find(pedra => pedra.id === chapa.tipo_de_pedra)?.nome}</td>
+              <td>{localizacoes.find(local => local.id === chapa.localizacao_estoque)?.codigo}</td>
+              <td>{chapa.comprimento}</td>
+              <td>{chapa.largura}</td>
+              <td>{chapa.espessura}</td>
+              <td>{chapa.defeitos_superficiais ? 'Sim' : 'Não'}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };
 
-export default Inventory;
+export default InventoryList;

@@ -7,7 +7,7 @@ const SearchNewSlab = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    axios.post('/api/procurar-chapa/', { geometria })
+    axios.post('http://localhost:8000/api/procurar-chapa/', { geometria })
       .then(response => setMelhorOpcao(response.data))
       .catch(error => console.error('Erro ao procurar chapa:', error));
   };

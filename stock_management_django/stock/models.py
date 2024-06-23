@@ -16,17 +16,17 @@ class LocalizacaoEstoque(models.Model):
         return self.codigo
 
 class Chapa(models.Model):
-    codigo = models.CharField(max_length=50, unique=True)
+    codigo = models.CharField(max_length=100, unique=True)
     comprimento = models.DecimalField(max_digits=10, decimal_places=2)
     largura = models.DecimalField(max_digits=10, decimal_places=2)
-    espessura = models.DecimalField(max_digits=5, decimal_places=2)
-    tipo_de_pedra = models.ForeignKey(TipoDePedra, on_delete=models.CASCADE)
+    espessura = models.DecimalField(max_digits=10, decimal_places=2)
     defeitos_superficiais = models.TextField(blank=True, null=True)
-    qr_code = models.CharField(max_length=255)
-    localizacao_estoque = models.ForeignKey(LocalizacaoEstoque, on_delete=models.SET_NULL, null=True)
+    tipo_de_pedra = models.ForeignKey(TipoDePedra, on_delete=models.CASCADE)
+    localizacao_estoque = models.ForeignKey(LocalizacaoEstoque, on_delete=models.CASCADE)
+    qr_code = models.CharField(max_length=100, unique=True, blank=True, null=True)
+    status = models.CharField(max_length=50, default='disponível')
     data_entrada = models.DateTimeField(auto_now_add=True)
     data_saida = models.DateTimeField(blank=True, null=True)
-    status = models.CharField(max_length=50)
 
     def __str__(self):
         return self.codigo

@@ -16,6 +16,15 @@ class ChapaSerializer(serializers.ModelSerializer):
         model = Chapa
         fields = '__all__'
 
+    def validate(self, data):
+        if data['comprimento'] <= 0:
+            raise serializers.ValidationError("O comprimento deve ser maior que zero.")
+        if data['largura'] <= 0:
+            raise serializers.ValidationError("A largura deve ser maior que zero.")
+        if data['espessura'] <= 0:
+            raise serializers.ValidationError("A espessura deve ser maior que zero.")
+        return data
+
 class SobraSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sobra
